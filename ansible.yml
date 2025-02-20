@@ -1,19 +1,31 @@
 ---
-- name: Setup environment for the project
-  hosts: all
+- name: Setup environment for the project on all nodes
+  hosts: Nodes
   become: yes
   tasks:
-    - name: Update apt cache and install packages
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+
+    - name: Install required packages (Git, Docker, Java, Maven)
       apt:
         name:
           - git
           - docker.io
           - openjdk-17-jdk
+          - maven
         state: present
-        update_cache: yes
 
-    - name: Ensure docker service is running
+    - name: Ensure Docker service is running
       service:
         name: docker
         state: started
         enabled: yes
+
+ # Play for Slave Node Script Execution
+- name: Task for Slave Nodes
+  hosts: controller
+  become: yes
+  tasks:
+    - name: Execute Jenkins setup script on controller
+      script: ./jenkins.sh
